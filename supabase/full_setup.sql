@@ -1,6 +1,7 @@
 -- ============================================================
--- DIATOMLIFE - SUPABASE SCHEMA (run in new project SQL Editor)
--- Phase 1: tables, triggers, RLS policies, storage buckets
+-- DIATOMLIFE SCHEMA - PART 1 of 4 (tables only)
+-- Paste this ENTIRE file into Supabase SQL Editor -> New query -> Run
+-- If it errors, tell me the EXACT error text + which line.
 -- ============================================================
 
 -- ---------- 1. PROFILES (extends auth.users) ----------
@@ -13,27 +14,6 @@ create table if not exists public.profiles (
   created_at timestamptz default now()
 );
 
--- auto-create profile on signup
-create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer set search_path = public as $$
-begin
-  insert into public.profiles (id, email, full_name, phone)
-  values (
-    new.id,
-    new.email,
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
-    coalesce(new.raw_user_meta_data->>'phone', '')
-  );
-  -- every new user gets the 'customer' role
-  insert into public.user_roles (user_id, role) values (new.id, 'customer');
-  return new;
-end; $$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-
 -- ---------- 2. USER ROLES (multiple admins supported) ----------
 create table if not exists public.user_roles (
   user_id uuid references auth.users(id) on delete cascade,
@@ -41,15 +21,6 @@ create table if not exists public.user_roles (
   created_at timestamptz default now(),
   primary key (user_id, role)
 );
-
--- helper: is the current user an admin?
-create or replace function public.is_admin()
-returns boolean language sql security definer stable set search_path = public as $$
-  select exists (
-    select 1 from public.user_roles
-    where user_id = auth.uid() and role = 'admin'
-  );
-$$;
 
 -- ---------- 3. CATEGORIES ----------
 create table if not exists public.categories (
@@ -88,19 +59,19 @@ create index if not exists products_active_idx on public.products(is_active);
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid not null references auth.users(id) on delete cascade,
-  order_number text not null unique,           -- DIAT-YYYYMMDD-XXXX
+  order_number text not null unique,
   status text not null default 'pending_payment'
     check (status in ('pending_payment','payment_verified','processing','shipped','delivered','cancelled')),
   subtotal_kes numeric(10,2) not null,
   delivery_fee_kes numeric(10,2) not null default 0,
   total_kes numeric(10,2) not null,
-  mpesa_transaction_code text,                 -- e.g. QGH7XY2JKL entered by customer
+  mpesa_transaction_code text,
   shipping_full_name text not null,
   shipping_phone text not null,
-  shipping_address text not null,              -- street/estate + landmark
-  shipping_county text not null,               -- Fargo courier destination
+  shipping_address text not null,
+  shipping_county text not null,
   notes text,
-  verified_by uuid references auth.users(id),  -- admin who confirmed payment
+  verified_by uuid references auth.users(id),
   verified_at timestamptz,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -116,12 +87,12 @@ create table if not exists public.order_items (
   product_id uuid not null references public.products(id) on delete restrict,
   quantity int not null check (quantity > 0),
   price_at_purchase_kes numeric(10,2) not null,
-  product_name_snapshot text not null          -- survives product deletion
+  product_name_snapshot text not null
 );
 
 create index if not exists order_items_order_idx on public.order_items(order_id);
 
--- ---------- 7. BLOG POSTS (managed from admin) ----------
+-- ---------- 7. BLOG POSTS ----------
 create table if not exists public.blog_posts (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -165,7 +136,7 @@ create table if not exists public.wishlists (
   primary key (user_id, product_id)
 );
 
--- ---------- 11. REVIEWS (Phase 5, table ready now) ----------
+-- ---------- 11. REVIEWS ----------
 create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
   product_id uuid not null references public.products(id) on delete cascade,
@@ -177,7 +148,7 @@ create table if not exists public.reviews (
   unique (product_id, user_id)
 );
 
--- ---------- 12. SETTINGS (M-Pesa number etc., admin-editable) ----------
+-- ---------- 12. SETTINGS ----------
 create table if not exists public.settings (
   key text primary key,
   value text not null,
@@ -185,18 +156,58 @@ create table if not exists public.settings (
   updated_at timestamptz default now()
 );
 
--- sensible defaults (EDIT these with your real M-Pesa details)
 insert into public.settings (key, value, type) values
   ('mpesa_business_name', 'Diatomlife', 'string'),
-  ('mpesa_phone_number', '2547XXXXXXXX', 'string'),   -- <-- put your real Safaricom number here
+  ('mpesa_phone_number', '2547XXXXXXXX', 'string'),
   ('mpesa_shortcode', '', 'string'),
   ('delivery_info', 'We deliver nationwide via Fargo Courier. Delivery fee depends on distance/county and is confirmed before dispatch.', 'string'),
   ('site_email', 'info@diatomlife.co.ke', 'string')
 on conflict (key) do nothing;
+-- ============================================================
+-- DIATOMLIFE SCHEMA - PART 2 of 4 (functions + triggers)
+-- Run ONLY after Part 1 succeeded.
+-- ============================================================
 
+-- helper: is the current user an admin?
+create or replace function public.is_admin()
+returns boolean language sql security definer stable set search_path = public as $$
+  select exists (
+    select 1 from public.user_roles
+    where user_id = auth.uid() and role = 'admin'
+  );
+$$;
+
+-- auto-create profile + customer role on signup
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.profiles (id, email, full_name, phone)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'full_name', ''),
+    coalesce(new.raw_user_meta_data->>'phone', '')
+  )
+  on conflict (id) do nothing;
+
+  insert into public.user_roles (user_id, role)
+  values (new.id, 'customer')
+  on conflict do nothing;
+
+  return new;
+end; $$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
 -- ============================================================
--- ROW LEVEL SECURITY
+-- DIATOMLIFE SCHEMA - PART 3 of 4 (RLS enable + policies)
+-- Run ONLY after Parts 1 and 2 succeeded.
+-- Each policy is created with IF NOT EXISTS logic via DO blocks,
+-- so you can safely re-run this file if it fails halfway.
 -- ============================================================
+
 alter table public.profiles enable row level security;
 alter table public.user_roles enable row level security;
 alter table public.categories enable row level security;
@@ -210,87 +221,118 @@ alter table public.wishlists enable row level security;
 alter table public.reviews enable row level security;
 alter table public.settings enable row level security;
 
--- profiles: own row read/update; admins read all
+-- profiles
+drop policy if exists "profiles_select_own" on public.profiles;
 create policy "profiles_select_own" on public.profiles for select using (auth.uid() = id or public.is_admin());
+drop policy if exists "profiles_update_own" on public.profiles;
 create policy "profiles_update_own" on public.profiles for update using (auth.uid() = id);
 
--- user_roles: admins manage; users can see their own roles
+-- user_roles
+drop policy if exists "roles_select_own_or_admin" on public.user_roles;
 create policy "roles_select_own_or_admin" on public.user_roles for select using (auth.uid() = user_id or public.is_admin());
+drop policy if exists "roles_admin_manage" on public.user_roles;
 create policy "roles_admin_manage" on public.user_roles for all using (public.is_admin()) with check (public.is_admin());
 
--- categories: public read, admin write
+-- categories
+drop policy if exists "categories_public_read" on public.categories;
 create policy "categories_public_read" on public.categories for select using (true);
+drop policy if exists "categories_admin_write" on public.categories;
 create policy "categories_admin_write" on public.categories for all using (public.is_admin()) with check (public.is_admin());
 
--- products: anyone reads active; admin reads/writes everything
+-- products
+drop policy if exists "products_public_read" on public.products;
 create policy "products_public_read" on public.products for select using (is_active = true or public.is_admin());
+drop policy if exists "products_admin_write" on public.products;
 create policy "products_admin_write" on public.products for insert with check (public.is_admin());
+drop policy if exists "products_admin_update" on public.products;
 create policy "products_admin_update" on public.products for update using (public.is_admin());
+drop policy if exists "products_admin_delete" on public.products;
 create policy "products_admin_delete" on public.products for delete using (public.is_admin());
 
--- orders: customers see/place own; admins see/manage all
+-- orders
+drop policy if exists "orders_select_own_or_admin" on public.orders;
 create policy "orders_select_own_or_admin" on public.orders for select using (auth.uid() = customer_id or public.is_admin());
+drop policy if exists "orders_insert_own" on public.orders;
 create policy "orders_insert_own" on public.orders for insert with check (auth.uid() = customer_id);
+drop policy if exists "orders_update_admin" on public.orders;
 create policy "orders_update_admin" on public.orders for update using (public.is_admin());
+drop policy if exists "orders_cancel_own_pending" on public.orders;
 create policy "orders_cancel_own_pending" on public.orders for update using (auth.uid() = customer_id and status = 'pending_payment');
 
--- order items: customers see own order items; admins all
+-- order items
+drop policy if exists "order_items_select_own_or_admin" on public.order_items;
 create policy "order_items_select_own_or_admin" on public.order_items for select using (
   public.is_admin() or exists (
     select 1 from public.orders o where o.id = order_id and o.customer_id = auth.uid()
   )
 );
+drop policy if exists "order_items_insert_own" on public.order_items;
 create policy "order_items_insert_own" on public.order_items for insert with check (
   exists (select 1 from public.orders o where o.id = order_id and o.customer_id = auth.uid())
 );
 
--- blog: public reads published; admin full
+-- blog
+drop policy if exists "blog_public_read_published" on public.blog_posts;
 create policy "blog_public_read_published" on public.blog_posts for select using (published = true or public.is_admin());
+drop policy if exists "blog_admin_write" on public.blog_posts;
 create policy "blog_admin_write" on public.blog_posts for all using (public.is_admin()) with check (public.is_admin());
 
--- faqs: public read, admin write
+-- faqs
+drop policy if exists "faqs_public_read" on public.faqs;
 create policy "faqs_public_read" on public.faqs for select using (true);
+drop policy if exists "faqs_admin_write" on public.faqs;
 create policy "faqs_admin_write" on public.faqs for all using (public.is_admin()) with check (public.is_admin());
 
--- contact messages: anyone can submit; only admins read/manage
+-- contact messages
+drop policy if exists "contact_insert_public" on public.contact_messages;
 create policy "contact_insert_public" on public.contact_messages for insert with check (true);
+drop policy if exists "contact_admin_read" on public.contact_messages;
 create policy "contact_admin_read" on public.contact_messages for select using (public.is_admin());
+drop policy if exists "contact_admin_update" on public.contact_messages;
 create policy "contact_admin_update" on public.contact_messages for update using (public.is_admin());
 
--- wishlists: owner manages
+-- wishlists
+drop policy if exists "wishlists_owner_all" on public.wishlists;
 create policy "wishlists_owner_all" on public.wishlists for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- reviews: public read; logged-in create own; owner/admin update-delete
+-- reviews
+drop policy if exists "reviews_public_read" on public.reviews;
 create policy "reviews_public_read" on public.reviews for select using (true);
+drop policy if exists "reviews_insert_own" on public.reviews;
 create policy "reviews_insert_own" on public.reviews for insert with check (auth.uid() = user_id);
+drop policy if exists "reviews_update_own_or_admin" on public.reviews;
 create policy "reviews_update_own_or_admin" on public.reviews for update using (auth.uid() = user_id or public.is_admin());
+drop policy if exists "reviews_delete_own_or_admin" on public.reviews;
 create policy "reviews_delete_own_or_admin" on public.reviews for delete using (auth.uid() = user_id or public.is_admin());
 
--- settings: public read (M-Pesa instructions shown at checkout); admin write
+-- settings
+drop policy if exists "settings_public_read" on public.settings;
 create policy "settings_public_read" on public.settings for select using (true);
+drop policy if exists "settings_admin_write" on public.settings;
 create policy "settings_admin_write" on public.settings for all using (public.is_admin()) with check (public.is_admin());
-
 -- ============================================================
--- STORAGE BUCKETS
+-- DIATOMLIFE SCHEMA - PART 4 of 4 (storage bucket policies)
+-- Run ONLY after Part 3 succeeded.
+--
+-- NOTE: We do NOT insert into storage.buckets here — create the
+-- 4 buckets manually in the dashboard (takes 30 seconds):
+--   Storage -> New bucket -> for EACH of these names, PUBLIC bucket:
+--     1. product-images
+--     2. blog-images
+--     3. user-avatars
+--     4. category-banners
+-- Then run this file to set the access policies.
 -- ============================================================
-insert into storage.buckets (id, name, public) values
-  ('product-images', 'product-images', true),
-  ('blog-images', 'blog-images', true),
-  ('user-avatars', 'user-avatars', true),
-  ('category-banners', 'category-banners', true)
-on conflict (id) do nothing;
 
--- public read from all buckets; uploads/deletes restricted to admins
+drop policy if exists "storage_public_read" on storage.objects;
 create policy "storage_public_read" on storage.objects for select using (bucket_id in
   ('product-images','blog-images','user-avatars','category-banners'));
-create policy "storage_admin_insert" on storage.objects for insert with check (public.is_admin());
-create policy "storage_admin_update" on storage.objects for update using (public.is_admin());
-create policy "storage_admin_delete" on storage.objects for delete using (public.is_admin());
 
--- ============================================================
--- MAKE YOURSELF ADMIN (last step!)
--- Replace the email below with the address you will sign up with,
--- then run this AFTER creating your account in the app.
--- ============================================================
--- update public.user_roles set role = 'admin'
--- where user_id = (select id from auth.users where email = 'you@example.com');
+drop policy if exists "storage_admin_insert" on storage.objects;
+create policy "storage_admin_insert" on storage.objects for insert with check (public.is_admin());
+
+drop policy if exists "storage_admin_update" on storage.objects;
+create policy "storage_admin_update" on storage.objects for update using (public.is_admin());
+
+drop policy if exists "storage_admin_delete" on storage.objects;
+create policy "storage_admin_delete" on storage.objects for delete using (public.is_admin());
