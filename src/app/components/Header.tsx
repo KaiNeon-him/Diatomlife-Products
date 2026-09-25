@@ -2,6 +2,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Sun, Moon, Laptop, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -13,6 +15,8 @@ import {
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const { itemCount } = useCart();
   const location = useLocation();
 
   const navLinks = [
@@ -88,16 +92,43 @@ export function Header() {
             <Link to="/cart">
               <Button variant="outline" size="icon" className="rounded-full relative">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  0
-                </span>
+                {itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                    {itemCount}
+                  </span>
+                )}
               </Button>
             </Link>
 
-            {/* Account */}
-            <Link to="/account" className="hidden md:block">
-              <Button variant="default">Account</Button>
-            </Link>
+            {/* Account / Auth */}
+            <div className="hidden md:flex items-center gap-2">
+              {user ? (
+                <>
+                  {isAdmin && (
+                    <Link to="/admin">
+                      <Button variant="outline">Admin</Button>
+                    </Link>
+                  )}
+                  <Link to="/account">
+                    <Button variant="ghost" className="max-w-[140px] truncate">
+                      {profile?.full_name || user.email}
+                    </Button>
+                  </Link>
+                  <Button variant="outline" onClick={() => signOut()}>
+                    Sign out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="outline">Sign in</Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button>Register</Button>
+                  </Link>
+                </>
+              )}
+            </div>
 
             {/* Mobile Menu Toggle */}
             <Button
@@ -128,13 +159,33 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/account"
-              className="block py-2 px-4 rounded-md text-foreground hover:bg-accent md:hidden"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Account
-            </Link>
+            {user ? (
+              <div className="flex flex-col gap-2 md:hidden">
+                {isAdmin && (
+                  <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 rounded-md text-foreground hover:bg-accent">
+                    Admin
+                  </Link>
+                )}
+                <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 rounded-md text-foreground hover:bg-accent">
+                  Account ({profile?.full_name || user.email})
+                </Link>
+                <button
+                  onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                  className="block w-full text-left py-2 px-4 rounded-md text-foreground hover:bg-accent"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 md:hidden">
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 rounded-md text-foreground hover:bg-accent">
+                  Sign in
+                </Link>
+                <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="block py-2 px-4 rounded-md text-foreground hover:bg-accent">
+                  Register
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </nav>
