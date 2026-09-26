@@ -10,8 +10,8 @@
 --   * Restores RLS at the end. Run AFTER full_setup.sql. Prices are USD*130 KES placeholders.
 
 -- 0) Allow seeding regardless of RLS admin check (restored in step 3 below)
-alter table public.categories disable row security;
-alter table public.products disable row security;
+alter table public.categories disable row level security;
+alter table public.products disable row level security;
 
 -- 1) Categories (19)
 insert into public.categories (name, slug, sort_order)
@@ -645,8 +645,8 @@ on conflict (slug) do update set
   updated_at = now();
 
 -- 3) Restore row-level security (public read stays via the policies in full_setup.sql)
-alter table public.categories enable row security;
-alter table public.products enable row security;
+alter table public.categories enable row level security;
+alter table public.products enable row level security;
 
 -- 4) Verify (optional): should return 19 and 19
 -- select count(*) from public.categories;
