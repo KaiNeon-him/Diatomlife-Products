@@ -1,0 +1,306 @@
+export interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  image: string;
+  description: string;
+  holisticStory: string;
+  scientificWhy: string;
+  ingredients: string[];
+  benefits: string[];
+  usage: string;
+  inStock: boolean;
+}
+
+export const products: Product[] = [
+  {
+    id: '1',
+    name: 'Nutrisil',
+    category: 'Minerals & Structural Support',
+    price: 24.99,
+    image: 'https://images.unsplash.com/photo-1704650312022-ed1a76dbed1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaWF0b21hY2VvdXMlMjBlYXJ0aCUyMHBvd2RlciUyMG5hdHVyYWwlMjBzdXBwbGVtZW50fGVufDF8fHx8MTc3MTc1OTc4NXww&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Food-Grade Diatomaceous Earth - Ancient mineral support for structural integrity and natural cleansing.',
+    holisticStory: 'Derived from ancient freshwater diatoms, Nutrisil is earth\'s hidden treasure for internal structural integrity. It works to gently "sweep" the digestive tract while providing the essential minerals to help you glow from the inside out.',
+    scientificWhy: 'A concentrated source of amorphous Silica, which is vital for collagen formation, bone density, and strengthening the connective tissues in hair, skin, and nails.',
+    ingredients: ['Food-Grade Diatomaceous Earth', 'Amorphous Silica', 'Natural Trace Minerals'],
+    benefits: ['Supports collagen production', 'Strengthens hair, skin & nails', 'Gentle digestive cleanse', 'Bone density support'],
+    usage: 'Mix 1 teaspoon into a glass of water or juice daily on an empty stomach.',
+    inStock: true
+  },
+  {
+    id: '2',
+    name: 'Natural C',
+    category: 'Vitamins & Antioxidants',
+    price: 32.99,
+    image: 'https://images.unsplash.com/photo-1648139347040-857f024f8da4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aXRhbWluJTIwYyUyMHBvd2RlciUyMG9yYW5nZSUyMHN1cHBsZW1lbnR8ZW58MXx8fHwxNzcxNzU5NzkyfDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Baobab Fruit Powder - Whole-food Vitamin C from the African Tree of Life.',
+    holisticStory: 'Sourced from the African "Tree of Life," this whole-food Vitamin C carries the resilient energy of the savannah to brighten your skin and spirit.',
+    scientificWhy: 'A raw source of L-ascorbic acid and prebiotic fiber that enhances collagen production and stabilizes blood sugar levels.',
+    ingredients: ['Organic Baobab Fruit Powder', 'Natural Vitamin C', 'Prebiotic Fiber'],
+    benefits: ['Brightens skin naturally', 'Collagen enhancement', 'Blood sugar balance', 'Immune system support'],
+    usage: 'Stir 2 teaspoons into water, juice, or your favorite morning smoothie.',
+    inStock: true
+  },
+  {
+    id: '3',
+    name: 'Activated Charcoal',
+    category: 'Detox & Cleanse',
+    price: 19.99,
+    image: 'https://images.unsplash.com/photo-1534259434801-e3d2427ae102?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhY3RpdmF0ZWQlMjBjaGFyY29hbCUyMHBvd2RlciUyMGRldG94fGVufDF8fHx8MTc3MTc1OTc4NXww&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Premium Activated Charcoal - Nature\'s magnetic cleanser for modern living.',
+    holisticStory: 'Nature\'s "magnetic" cleanser that draws out the heavy impurities of modern living, leaving you feeling light and renewed.',
+    scientificWhy: 'High-surface-area carbon binds to toxins in the digestive tract via adsorption, preventing them from entering the bloodstream.',
+    ingredients: ['Activated Coconut Shell Charcoal', 'High-Surface-Area Carbon'],
+    benefits: ['Toxin binding support', 'Digestive cleansing', 'Bloating relief', 'Natural detoxification'],
+    usage: 'Mix 1/2 teaspoon in a glass of water. Take 2 hours away from food.',
+    inStock: true
+  },
+  {
+    id: '4',
+    name: 'Ashwagandha',
+    category: 'Adaptogens & Stress Support',
+    price: 28.99,
+    image: 'https://images.unsplash.com/photo-1608629483046-50c4a693b37f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2h3YWdhbmRoYSUyMHJvb3QlMjBwb3dkZXIlMjBheXVydmVkaWN8ZW58MXx8fHwxNzcxNzU5Nzg1fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Organic Ashwagandha Root - Ancient Ayurvedic strength for stress resilience.',
+    holisticStory: 'An ancient Ayurvedic root that helps the soul stay anchored, providing the "strength of a horse" to endure life\'s daily stressors.',
+    scientificWhy: 'An adaptogen that regulates the HPA axis to modulate cortisol levels, helping to balance the nervous system.',
+    ingredients: ['Organic Ashwagandha Root Extract', 'Withanolides', 'Natural Adaptogens'],
+    benefits: ['Stress management', 'Cortisol balance', 'Enhanced resilience', 'Nervous system support'],
+    usage: 'Take 500mg daily in capsule form or mix into warm milk before bed.',
+    inStock: true
+  },
+  {
+    id: '5',
+    name: 'Neem',
+    category: 'Blood Purification & Skin',
+    price: 21.99,
+    image: 'https://images.unsplash.com/photo-1586787458771-f8115994d98a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxuZWVtJTIwbGVhdmVzJTIwcG93ZGVyJTIwbmF0dXJhbHxlbnwxfHx8fDE3NzE3NTk3ODZ8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Pure Neem Powder - The Village Pharmacy for radiant skin and internal clarity.',
+    holisticStory: 'Known as "The Village Pharmacy," Neem is a sacred purifier used for centuries to manifest radiant skin and internal clarity.',
+    scientificWhy: 'Contains bioactive limonoids that offer potent antimicrobial and anti-inflammatory support for the blood.',
+    ingredients: ['Organic Neem Leaf Powder', 'Limonoids', 'Natural Azadirachtin'],
+    benefits: ['Skin radiance', 'Blood purification', 'Antimicrobial support', 'Anti-inflammatory properties'],
+    usage: 'Traditionally taken for internal cleansing or applied as a diluted oil for skin.',
+    inStock: true
+  },
+  {
+    id: '6',
+    name: 'Castor Oil',
+    category: 'Topical Wellness & Lymphatic',
+    price: 26.99,
+    image: 'https://images.unsplash.com/photo-1596470663178-dc2df28026f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXN0b3IlMjBvaWwlMjBib3R0bGUlMjBuYXR1cmFsfGVufDF8fHx8MTc3MTc1OTc4Nnww&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Cold-Pressed Castor Oil - The Palm of Christ for deep tissue healing.',
+    holisticStory: 'A thick, golden oil known as the "Palm of Christ," used to draw out tension and encourage the body\'s healing flow.',
+    scientificWhy: 'Rich in Ricinoleic acid, which penetrates deep into tissues to stimulate lymphatic drainage.',
+    ingredients: ['100% Pure Cold-Pressed Castor Oil', 'Ricinoleic Acid', 'Natural Fatty Acids'],
+    benefits: ['Lymphatic drainage', 'Deep tissue penetration', 'Hair & scalp nourishment', 'Tension relief'],
+    usage: 'Apply topically as a warm pack or use as a nourishing treatment for hair.',
+    inStock: true
+  },
+  {
+    id: '7',
+    name: 'Chamomile',
+    category: 'Herbal Teas & Relaxation',
+    price: 15.99,
+    image: 'https://images.unsplash.com/photo-1631037958828-cc7d9a7fd93b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGFtb21pbGUlMjBmbG93ZXJzJTIwdGVhJTIwaGVyYnN8ZW58MXx8fHwxNzcxNzU5Nzg2fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Organic Chamomile Flowers - A floral embrace for peace and stillness.',
+    holisticStory: 'A floral embrace that softens the edges of a hard day, inviting a sense of peace and restorative stillness.',
+    scientificWhy: 'High in the antioxidant Apigenin, which binds to specific receptors in the brain to reduce anxiety.',
+    ingredients: ['Organic Chamomile Flowers', 'Apigenin', 'Natural Flavonoids'],
+    benefits: ['Reduces anxiety', 'Promotes sleep', 'Digestive calming', 'Antioxidant protection'],
+    usage: 'Steep 1 tablespoon of flowers in hot water for 7 minutes.',
+    inStock: true
+  },
+  {
+    id: '8',
+    name: 'Star Anise',
+    category: 'Respiratory & Immune',
+    price: 18.99,
+    image: 'https://images.unsplash.com/photo-1765118433463-93af73bc8ff9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdGFyJTIwYW5pc2UlMjBzcGljZSUyMG5hdHVyYWx8ZW58MXx8fHwxNzcxNzU5Nzg3fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Whole Star Anise - Protective spice for respiratory wellness.',
+    holisticStory: 'A beautiful, spice-scented shield that guards the respiratory system and warms the body\'s internal fire.',
+    scientificWhy: 'A primary natural source of Shikimic Acid, used to inhibit viral replication and support lung health.',
+    ingredients: ['Whole Star Anise', 'Shikimic Acid', 'Natural Essential Oils'],
+    benefits: ['Respiratory protection', 'Viral inhibition support', 'Lung health', 'Warming properties'],
+    usage: 'Add to tea blends or use in cooking to extract potent protective compounds.',
+    inStock: true
+  },
+  {
+    id: '9',
+    name: 'Nutri Honey',
+    category: 'Raw Sweeteners & Energy',
+    price: 29.99,
+    image: 'https://images.unsplash.com/photo-1719871766551-b9ecf87eee51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyYXclMjBob25leSUyMGphciUyMG5hdHVyYWx8ZW58MXx8fHwxNzcxNzU5Nzg3fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Raw Wildflower Honey - Living sunshine captured in a jar.',
+    holisticStory: 'Living sunshine captured in a jar. Our honey is an enzymatic powerhouse that carries the healing vibrations of wild blooms.',
+    scientificWhy: 'Contains raw polyphenols and natural enzymes that support gut health and provide steady energy.',
+    ingredients: ['Raw Wildflower Honey', 'Natural Enzymes', 'Polyphenols', 'Bee Pollen'],
+    benefits: ['Gut health support', 'Steady energy', 'Allergy relief', 'Natural antimicrobial'],
+    usage: 'Take one teaspoon daily for allergy support or stir into lukewarm tea.',
+    inStock: true
+  },
+  {
+    id: '10',
+    name: 'Magnesium Glycinate',
+    category: 'Minerals & Sleep Support',
+    price: 27.99,
+    image: 'https://images.unsplash.com/photo-1729704200357-bb60fe204b55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWduZXNpdW0lMjBzdXBwbGVtZW50JTIwY2Fwc3VsZXMlMjB3ZWxsbmVzc3xlbnwxfHx8fDE3NzE3NTk3ODd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Chelated Magnesium Glycinate - The Master Mineral for rest and recovery.',
+    holisticStory: 'The "Master Mineral" for modern rest. It acts as a grounding force for those who find it hard to "switch off" at night.',
+    scientificWhy: 'Chelated with Glycine for maximum absorption; supports over 300 enzymatic reactions including ATP production.',
+    ingredients: ['Magnesium Glycinate', 'Glycine', 'Chelated Minerals'],
+    benefits: ['Deep sleep support', 'Muscle relaxation', 'Energy production', 'Nervous system calming'],
+    usage: 'Take 200-400mg approximately 1 hour before bedtime.',
+    inStock: true
+  },
+  {
+    id: '11',
+    name: 'Turmeric & Curcumin',
+    category: 'Anti-Inflammatory & Joint Health',
+    price: 31.99,
+    image: 'https://images.unsplash.com/photo-1702041295331-840d4d9aa7c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0dXJtZXJpYyUyMGN1cmN1bWluJTIwcG93ZGVyJTIwZ29sZGVufGVufDF8fHx8MTc3MTc1OTc4OHww&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Organic Turmeric with High-Potency Curcumin - Nature\'s golden healer.',
+    holisticStory: 'Nature\'s golden healer, bringing warmth and mobility to the joints while brightening the body\'s internal landscape.',
+    scientificWhy: 'Curcuminoids act as signaling molecules that downregulate inflammatory pathways like NF-kB.',
+    ingredients: ['Organic Turmeric Root', '95% Curcuminoids', 'Black Pepper Extract'],
+    benefits: ['Joint mobility', 'Inflammation modulation', 'Antioxidant power', 'Cardiovascular support'],
+    usage: 'Take with a pinch of black pepper or healthy fats to increase bioavailability.',
+    inStock: true
+  },
+  {
+    id: '12',
+    name: 'Sea Moss Gel',
+    category: 'Minerals & Thyroid Support',
+    price: 34.99,
+    image: 'https://images.unsplash.com/photo-1707868569462-819213af203e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzZWElMjBtb3NzJTIwZ2VsJTIwbmF0dXJhbHxlbnwxfHx8fDE3NzE3NTk3ODh8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Wild-Harvested Sea Moss Gel - The ocean\'s mineral multivitamin.',
+    holisticStory: 'The ocean\'s mineral multivitamin, containing 92 of the 102 minerals your body is made of, for total cellular nourishment.',
+    scientificWhy: 'High in organic Iodine for thyroid support and Potassium Chloride to help dissolve excess mucus.',
+    ingredients: ['Wild Irish Sea Moss', 'Organic Iodine', 'Potassium Chloride', '92 Trace Minerals'],
+    benefits: ['Thyroid health', 'Mucus dissolution', 'Cellular nourishment', 'Immune support'],
+    usage: 'Add 1-2 tablespoons to smoothies, soups, or teas daily.',
+    inStock: true
+  },
+  {
+    id: '13',
+    name: 'Elderberry Syrup',
+    category: 'Immune Support',
+    price: 26.99,
+    image: 'https://images.unsplash.com/photo-1728776448558-fe55e6fb3f3d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGRlcmJlcnJ5JTIwc3lydXAlMjBib3R0bGUlMjBpbW11bmV8ZW58MXx8fHwxNzcxNzU5Nzg4fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Organic Elderberry Syrup - Ancient berry guardian for seasonal protection.',
+    holisticStory: 'An ancient berry-based guardian used for generations to protect the family during the cold, dark months.',
+    scientificWhy: 'Anthocyanins in the berries strengthen cell membranes, making it harder for viruses to enter cells.',
+    ingredients: ['Organic Elderberries', 'Raw Honey', 'Cinnamon', 'Clove', 'Anthocyanins'],
+    benefits: ['Seasonal protection', 'Cell membrane strength', 'Antiviral properties', 'Family immune support'],
+    usage: 'Take 1 tablespoon daily for maintenance, or increase frequency if needed.',
+    inStock: true
+  },
+  {
+    id: '14',
+    name: 'Spirulina & Chlorella',
+    category: 'Superfoods & Detox',
+    price: 36.99,
+    image: 'https://images.unsplash.com/photo-1664956618403-175f565f18be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzcGlydWxpbmElMjBwb3dkZXIlMjBibHVlJTIwZ3JlZW58ZW58MXx8fHwxNzcxNzU5NzkyfDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Organic Spirulina & Chlorella Blend - Liquid sunshine for cellular detox.',
+    holisticStory: 'Blue-green algae that act as "liquid sunshine," alkalizing the blood and providing deep cellular detoxification.',
+    scientificWhy: 'Exceptionally high in Chlorophyll and bioavailable iron, supporting healthy oxygen transport.',
+    ingredients: ['Organic Spirulina', 'Cracked-Wall Chlorella', 'Chlorophyll', 'Bioavailable Iron'],
+    benefits: ['Blood alkalizing', 'Cellular detox', 'Oxygen transport', 'Nutrient density'],
+    usage: 'Mix powder into water or smoothies; start with a small dose.',
+    inStock: true
+  },
+  {
+    id: '15',
+    name: 'Moringa Powder',
+    category: 'Superfoods & Nutrition',
+    price: 28.99,
+    image: 'https://images.unsplash.com/photo-1746707233861-c3663cc5dff2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3JpbmdhJTIwbGVhdmVzJTIwZ3JlZW4lMjBwb3dkZXJ8ZW58MXx8fHwxNzcxNzU5NzkzfDA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Organic Moringa Leaf Powder - The Miracle Tree multivitamin.',
+    holisticStory: 'The "Miracle Tree" of the tropics, offering a nutrient-dense multivitamin in its purest, most vibrant plant form.',
+    scientificWhy: 'Contains 15x more Potassium than bananas and 17x more Calcium than milk, supporting bone density.',
+    ingredients: ['Organic Moringa Leaf Powder', 'Plant-Based Calcium', 'Potassium', 'Vitamin A'],
+    benefits: ['Bone density support', 'Natural multivitamin', 'Energy boost', 'Plant-based nutrition'],
+    usage: 'Mix 1 teaspoon into savory dishes, green juices, or morning lattes.',
+    inStock: true
+  },
+  {
+    id: '16',
+    name: 'Black Seed Oil',
+    category: 'Respiratory & Heart Health',
+    price: 33.99,
+    image: 'https://images.unsplash.com/photo-1755598603202-f6c6e02aa16b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibGFjayUyMGN1bWluJTIwc2VlZCUyMG9pbHxlbnwxfHx8fDE3NzE3NTk3OTN8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Cold-Pressed Black Seed Oil - A cure for everything but death.',
+    holisticStory: 'Revered for millennia as a "cure for everything," this potent oil restores the body\'s innate healing intelligence.',
+    scientificWhy: 'Rich in Thymoquinone, a compound that supports bronchodilation and cardiovascular health.',
+    ingredients: ['100% Pure Black Seed Oil', 'Thymoquinone', 'Omega Fatty Acids'],
+    benefits: ['Respiratory support', 'Heart health', 'Bronchodilation', 'Natural healing'],
+    usage: 'Take 1 teaspoon daily; can be chased with a spoonful of honey.',
+    inStock: true
+  },
+  {
+    id: '17',
+    name: 'Fulvic & Humic Acid',
+    category: 'Minerals & Cellular Absorption',
+    price: 38.99,
+    image: 'https://images.unsplash.com/photo-1764694187667-f28a05a52c0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaW5lcmFsJTIwc3VwcGxlbWVudCUyMGxpcXVpZCUyMGRyb3BzfGVufDF8fHx8MTc3MTc1OTc5M3ww&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Liquid Fulvic & Humic Minerals - Ancient soil wisdom for nutrient uptake.',
+    holisticStory: 'Ancient soil minerals that act as a bridge, helping your cells actually "receive" the nutrients from the food you eat.',
+    scientificWhy: 'Acts as a natural chelator that increases the permeability of cell membranes for efficient nutrient uptake.',
+    ingredients: ['Fulvic Acid', 'Humic Acid', 'Trace Minerals', 'Natural Electrolytes'],
+    benefits: ['Enhanced nutrient absorption', 'Cellular permeability', 'Detox support', 'Mineral replenishment'],
+    usage: 'Add a few drops to filtered water daily to remineralize your body.',
+    inStock: true
+  },
+  {
+    id: '18',
+    name: 'Milk Thistle',
+    category: 'Liver Support & Detox',
+    price: 24.99,
+    image: 'https://images.unsplash.com/photo-1731970820339-e725b78f55e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWxrJTIwdGhpc3RsZSUyMHNlZWRzJTIwbmF0dXJhbHxlbnwxfHx8fDE3NzE3NTk3ODl8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Standardized Milk Thistle Extract - Gentle liver protection and renewal.',
+    holisticStory: 'A gentle, protective reset for the liver, helping to filter out the noise of a toxic world.',
+    scientificWhy: 'Contains Silymarin, which stabilizes liver cell membranes and helps the liver regenerate.',
+    ingredients: ['Milk Thistle Seed Extract', 'Silymarin (80% Extract)', 'Natural Flavonoids'],
+    benefits: ['Liver regeneration', 'Cell membrane protection', 'Detox pathway support', 'Antioxidant protection'],
+    usage: 'Best taken as a standardized extract (capsule) or a tea.',
+    inStock: true
+  },
+  {
+    id: '19',
+    name: 'Peppermint Oil',
+    category: 'Digestive Health & Focus',
+    price: 16.99,
+    image: 'https://images.unsplash.com/photo-1743620404324-360e5506bcf3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXBwZXJtaW50JTIwb2lsJTIwZXNzZW50aWFsJTIwYm90dGxlfGVufDF8fHx8MTc3MTc1OTc4OXww&ixlib=rb-4.1.0&q=80&w=1080',
+    description: 'Food-Grade Peppermint Essential Oil - Cool relief for digestion and clarity.',
+    holisticStory: 'A breath of fresh air for the digestive system, providing cool relief and mental clarity.',
+    scientificWhy: 'Menthol relaxes the smooth muscles of the intestines, reducing bloating and improving bile flow.',
+    ingredients: ['100% Pure Peppermint Oil', 'Natural Menthol', 'Essential Plant Compounds'],
+    benefits: ['Digestive comfort', 'Bloating relief', 'Mental clarity', 'Bile flow support'],
+    usage: 'Use 1-2 drops (food grade) in tea or apply diluted to temples.',
+    inStock: true
+  }
+];
+
+export const categories = [
+  'All Products',
+  'Minerals & Structural Support',
+  'Vitamins & Antioxidants',
+  'Detox & Cleanse',
+  'Adaptogens & Stress Support',
+  'Blood Purification & Skin',
+  'Topical Wellness & Lymphatic',
+  'Herbal Teas & Relaxation',
+  'Respiratory & Immune',
+  'Raw Sweeteners & Energy',
+  'Minerals & Sleep Support',
+  'Anti-Inflammatory & Joint Health',
+  'Minerals & Thyroid Support',
+  'Immune Support',
+  'Superfoods & Detox',
+  'Superfoods & Nutrition',
+  'Respiratory & Heart Health',
+  'Minerals & Cellular Absorption',
+  'Liver Support & Detox',
+  'Digestive Health & Focus'
+];
