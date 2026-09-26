@@ -1,6 +1,6 @@
--- Diatomlife product & category seed (auto-generated from src/app/data/products.ts)
--- Safe to run multiple times (ON CONFLICT handling). Run AFTER full_setup.sql.
--- NOTE: prices are USD->KES placeholders at 130/USD. Update real prices in Admin.
+-- Diatomlife seed (auto-generated from src/app/data/products.ts)
+-- Safe to run multiple times. Run AFTER full_setup.sql.
+-- NOTE: prices are USD->KES placeholders at 130/USD. Correct real prices in Admin.
 
 BEGIN;
 
@@ -27,7 +27,7 @@ INSERT INTO public.categories (name, slug, sort_order) VALUES
 ('Digestive Health & Focus', 'digestive-health-and-focus', 19)
 ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name;
 
--- 2) Products (linked to categories by slug)
+-- 2) Products
 INSERT INTO public.products (name, slug, category_id, price_kes, description, holistic_story, scientific_why, ingredients, benefits, usage, image_url, stock_quantity, is_active) VALUES
 ('Nutrisil', 'nutrisil', (SELECT id FROM public.categories WHERE slug = 'minerals-and-structural-support'), 3249, 'Food-Grade Diatomaceous Earth - Ancient mineral support for structural integrity and natural cleansing.', 'Derived from ancient freshwater diatoms, Nutrisil is earth''s hidden treasure for internal structural integrity. It works to gently "sweep" the digestive tract while providing the essential minerals to help you glow from the inside out.', 'A concentrated source of amorphous Silica, which is vital for collagen formation, bone density, and strengthening the connective tissues in hair, skin, and nails.', array['Food-Grade Diatomaceous Earth', 'Amorphous Silica', 'Natural Trace Minerals']::text[], array['Supports collagen production', 'Strengthens hair, skin & nails', 'Gentle digestive cleanse', 'Bone density support']::text[], 'Mix 1 teaspoon into a glass of water or juice daily on an empty stomach.', 'https://images.unsplash.com/photo-1704650312022-ed1a76dbed1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaWF0b21hY2VvdXMlMjBlYXJ0aCUyMHBvd2RlciUyMG5hdHVyYWwlMjBzdXBwbGVtZW50fGVufDF8fHx8MTc3MTc1OTc4NXww&ixlib=rb-4.1.0&q=80&w=1080', 50, true),
 ('Natural C', 'natural-c', (SELECT id FROM public.categories WHERE slug = 'vitamins-and-antioxidants'), 4289, 'Baobab Fruit Powder - Whole-food Vitamin C from the African Tree of Life.', 'Sourced from the African "Tree of Life," this whole-food Vitamin C carries the resilient energy of the savannah to brighten your skin and spirit.', 'A raw source of L-ascorbic acid and prebiotic fiber that enhances collagen production and stabilizes blood sugar levels.', array['Organic Baobab Fruit Powder', 'Natural Vitamin C', 'Prebiotic Fiber']::text[], array['Brightens skin naturally', 'Collagen enhancement', 'Blood sugar balance', 'Immune system support']::text[], 'Stir 2 teaspoons into water, juice, or your favorite morning smoothie.', 'https://images.unsplash.com/photo-1648139347040-857f024f8da4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aXRhbWluJTIwYyUyMHBvd2RlciUyMG9yYW5nZSUyMHN1cHBsZW1lbnR8ZW58MXx8fHwxNzcxNzU5NzkyfDA&ixlib=rb-4.1.0&q=80&w=1080', 50, true),
