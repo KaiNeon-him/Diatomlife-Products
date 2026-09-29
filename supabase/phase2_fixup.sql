@@ -1,25 +1,26 @@
 -- ============================================================
--- Diatomlife Phase 2 — ONE-SHOT SETUP (paste whole file into
--- Supabase Dashboard -> SQL Editor and click Run)
+-- Diatomlife Phase 2 — FIXUP (alternative to the corrected
+-- phase2_run_all.sql; run EITHER one, not both).
 --
--- This combines, in the correct order:
---   A) auth helpers: profiles table + is_admin() + signup trigger
---      (is_admin MUST be created before any policy that uses it —
---       this was the bug that made earlier runs fail halfway)
---   B) storage buckets + policies (incl. TEMP anon-upload policy)
---   C) the 4 new products from the Google Drive photos
---      (Joint Care 699, Diabetes Tea 599, Mimosa Pudica 799,
---       Nutrisil + Natural C duo [TEST] 1999)
---   D) place_order() RPC + stock-handling trigger
---   E) verification query (read the result rows after running)
+-- ROOT CAUSE of the earlier half-failed runs (verified against
+-- your live project mdifxjedxilqxaipbvzc):
+--   * public.profiles table: MISSING
+--   * public.is_admin() function: MISSING
+--   ...but the SQL referenced public.is_admin() inside
+--      `create policy` statements. Postgres validates policy
+--      expressions at CREATE time -> "function public.is_admin()
+--      does not exist" -> execution aborted at that statement,
+--      so everything AFTER it (products, place_order RPC) never ran.
+--   (Storage buckets/policies before that point DID succeed.)
 --
--- Idempotent: safe to re-run.
--- After images are uploaded, run phase2_image_upload_cleanup.sql
--- to remove the temporary anon-upload policy.
+-- This file creates the missing auth helpers FIRST, then re-applies
+-- policies, products, and the place_order RPC. Idempotent, safe to
+-- re-run. Ends with a verification query - read its output rows.
 -- ============================================================
 
--- ========== A) AUTH HELPERS (before any policy referencing them) ==========
+-- ========== 0) AUTH HELPERS (must exist BEFORE any policy that uses them) ==========
 
+-- profiles table (backing table for admin flag), mirrors schema.sql
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text,
@@ -30,7 +31,7 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
--- admin-check function (created FIRST so policies below can reference it)
+-- the admin-check function everyone else depends on (created first!)
 create or replace function public.is_admin()
 returns boolean
 language sql
@@ -70,23 +71,23 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $trg0$
+as $$
 begin
   insert into public.profiles (id, email, full_name)
   values (new.id, new.email, coalesce(new.raw_user_meta_data->>'full_name', ''))
   on conflict (id) do nothing;
   return new;
 end;
-$trg0$;
+$$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- ========== B) STORAGE BUCKETS & POLICIES ==========
--- SECURITY DEFINER wrapper because the SQL Editor role cannot
--- insert into storage.buckets directly.
+-- ========== 1) STORAGE BUCKETS & POLICIES ==========
+-- SECURITY DEFINER wrapper: the SQL Editor role cannot insert into
+-- storage.buckets directly under its own RLS.
 create or replace function public._tmp_create_buckets() returns void
 language plpgsql security definer set search_path = public as $$
 begin
@@ -124,8 +125,7 @@ create policy "dev_anon_upload_product_images" on storage.objects
   for insert to anon
   with check (bucket_id = 'product-images');
 
-
--- ========== B) NEW PRODUCTS ==========
+-- ========== 2) NEW PRODUCTS ==========
 alter table public.products disable row level security;
 
 insert into public.products
@@ -226,12 +226,7 @@ on conflict (slug) do update set
 
 alter table public.products enable row level security;
 
--- ========== C) PLACE ORDER RPC ==========
--- (copy of phase2_place_order_rpc.sql content follows)
--- (place_order function + trigger follow below)
-
-alter table public.products disable row level security;
-
+-- ========== 3) PLACE ORDER RPC ==========
 create or replace function public.place_order(
   p_full_name text,
   p_phone text,
@@ -355,9 +350,7 @@ create trigger orders_status_stock
   before update on public.orders
   for each row execute function public.handle_order_status_change();
 
-alter table public.products enable row level security;
-
--- ========== E) VERIFICATION (read the result rows after running) ==========
+-- ========== 4) VERIFICATION (read the output rows) ==========
 select 'products_total' as check, count(*)::text as result from public.products
 union all
 select 'new_products_found', count(*)::text from public.products
