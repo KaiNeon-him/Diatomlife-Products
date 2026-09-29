@@ -1,4 +1,4 @@
-import { supabase, type Product } from '../lib/supabase';
+import { supabase, generateOrderNumber, type Order, type Product, type Setting } from '../lib/supabase';
 
 export async function fetchActiveProducts(): Promise<Product[]> {
   const { data, error } = await supabase
