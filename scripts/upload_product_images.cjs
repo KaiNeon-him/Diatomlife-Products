@@ -55,9 +55,11 @@ async function updateImageUrl(id, url) {
 }
 
 async function uploadObject(key, buffer, contentType) {
+  // upsert=true: replaces existing objects (requires anon select+delete
+  // policies from phase2_run_all_v2.sql; removed by the cleanup script).
   const r = await fetch(`${URL_BASE}/storage/v1/object/${BUCKET}/${key}`, {
     method: 'POST',
-    headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}`, 'content-type': contentType },
+    headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}`, 'content-type': contentType, 'x-upsert': 'true' },
     body: buffer,
   });
   const text = await r.text();

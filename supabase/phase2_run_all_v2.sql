@@ -125,6 +125,14 @@ create policy "dev_anon_delete_product_images" on storage.objects
   for delete to anon
   using (bucket_id = 'product-images');
 
+-- TEMP: allow anon to read the storage.objects catalog so the uploader
+-- script can REPLACE existing objects (upsert flow needs a SELECT).
+-- Removed by the cleanup script afterwards.
+drop policy if exists "dev_anon_read_objects" on storage.objects;
+create policy "dev_anon_read_objects" on storage.objects
+  for select to anon
+  using (bucket_id in ('product-images','blog-images','user-avatars','category-banners'));
+
 -- ========== C) THE 4 NEW PRODUCTS (idempotent upserts) ==========
 
 alter table public.products disable row level security;
