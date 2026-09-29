@@ -3,88 +3,18 @@
 -- Supabase Dashboard -> SQL Editor and click Run)
 --
 -- This combines, in the correct order:
---   A) auth helpers: profiles table + is_admin() + signup trigger
---      (is_admin MUST be created before any policy that uses it —
---       this was the bug that made earlier runs fail halfway)
---   B) storage buckets + policies (incl. TEMP anon-upload policy)
---   C) the 4 new products from the Google Drive photos
+--   A) storage buckets + policies (incl. TEMP anon-upload policy)
+--   B) the 4 new products from the Google Drive photos
 --      (Joint Care 699, Diabetes Tea 599, Mimosa Pudica 799,
 --       Nutrisil + Natural C duo [TEST] 1999)
---   D) place_order() RPC + stock-handling trigger
---   E) verification query (read the result rows after running)
+--   C) place_order() RPC + stock-handling trigger
 --
 -- Idempotent: safe to re-run.
 -- After images are uploaded, run phase2_image_upload_cleanup.sql
 -- to remove the temporary anon-upload policy.
 -- ============================================================
 
--- ========== A) AUTH HELPERS (before any policy referencing them) ==========
-
-create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  email text,
-  full_name text,
-  phone text,
-  is_admin boolean not null default false,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
--- admin-check function (created FIRST so policies below can reference it)
-create or replace function public.is_admin()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select coalesce(
-    (select p.is_admin from public.profiles p where p.id = auth.uid()),
-    false
-  );
-$$;
-
-grant execute on function public.is_admin() to anon, authenticated;
-
-alter table public.profiles enable row level security;
-
-drop policy if exists "profiles_select_own" on public.profiles;
-create policy "profiles_select_own" on public.profiles
-  for select using (auth.uid() = id);
-
-drop policy if exists "profiles_insert_own" on public.profiles;
-create policy "profiles_insert_own" on public.profiles
-  for insert with check (auth.uid() = id);
-
-drop policy if exists "profiles_update_own" on public.profiles;
-create policy "profiles_update_own" on public.profiles
-  for update using (auth.uid() = id);
-
-drop policy if exists "profiles_admin_all" on public.profiles;
-create policy "profiles_admin_all" on public.profiles
-  for all using (public.is_admin());
-
--- auto-create a profile row when a user signs up
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $trg0$
-begin
-  insert into public.profiles (id, email, full_name)
-  values (new.id, new.email, coalesce(new.raw_user_meta_data->>'full_name', ''))
-  on conflict (id) do nothing;
-  return new;
-end;
-$trg0$;
-
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
-
--- ========== B) STORAGE BUCKETS & POLICIES ==========
+-- ========== A) STORAGE BUCKETS & POLICIES ==========
 -- SECURITY DEFINER wrapper because the SQL Editor role cannot
 -- insert into storage.buckets directly.
 create or replace function public._tmp_create_buckets() returns void
@@ -356,15 +286,3 @@ create trigger orders_status_stock
   for each row execute function public.handle_order_status_change();
 
 alter table public.products enable row level security;
-
--- ========== E) VERIFICATION (read the result rows after running) ==========
-select 'products_total' as check, count(*)::text as result from public.products
-union all
-select 'new_products_found', count(*)::text from public.products
-  where slug in ('joint-care','diabetes-tea','mimosa-pudica','nutrisil-plus-natural-c')
-union all
-select 'is_admin_exists', count(*)::text from pg_proc where proname = 'is_admin'
-union all
-select 'place_order_exists', count(*)::text from pg_proc where proname = 'place_order'
-union all
-select 'product_images_bucket', count(*)::text from storage.buckets where id = 'product-images';
