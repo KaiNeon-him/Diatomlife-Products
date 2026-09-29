@@ -5,23 +5,12 @@
 -- ============================================================
 
 -- 1) Create the four storage buckets (public read).
---    Wrapped in a temporary SECURITY DEFINER function because Supabase's
---    SQL Editor runs as role "postgres", which does NOT own storage.buckets —
---    a plain INSERT there fails with "must be owner of table buckets".
-create or replace function public._tmp_create_buckets() returns void
-language plpgsql security definer set search_path = public as $$
-begin
-  insert into storage.buckets (id, name, public) values
-    ('product-images',    'product-images',    true),
-    ('blog-images',       'blog-images',       true),
-    ('user-avatars',      'user-avatars',      true),
-    ('category-banners',  'category-banners',  true)
-  on conflict (id) do update set public = excluded.public;
-end $$;
-
-select public._tmp_create_buckets();
-
-drop function public._tmp_create_buckets();
+insert into storage.buckets (id, name, public) values
+  ('product-images',    'product-images',    true),
+  ('blog-images',       'blog-images',       true),
+  ('user-avatars',      'user-avatars',      true),
+  ('category-banners',  'category-banners',  true)
+on conflict (id) do update set public = excluded.public;
 
 -- 2) Public read on all app buckets.
 drop policy if exists "storage_public_read" on storage.objects;
