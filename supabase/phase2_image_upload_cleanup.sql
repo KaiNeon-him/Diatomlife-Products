@@ -1,6 +1,5 @@
 -- Run AFTER the image upload script finishes: removes the temporary
--- dev policies (v1/v2/v3 names) so only admins can write/delete in
--- storage again, and deletes the leftover probe files.
+-- anon-upload policy so only admins can write to storage again.
 drop policy if exists "dev_anon_upload_product_images" on storage.objects;
 drop policy if exists "dev_anon_delete_product_images" on storage.objects;
 drop policy if exists "dev_anon_read_objects" on storage.objects;
