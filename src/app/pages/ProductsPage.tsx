@@ -1,18 +1,46 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { products, categories } from '../data/products';
+import { Skeleton } from '../components/ui/skeleton';
+import { ProductCard } from '../components/ProductCard';
+import { fetchActiveProducts } from '../services/products';
+import type { Product } from '../lib/supabase';
 import { Search } from 'lucide-react';
 
 export function ProductsPage() {
-  const [selectedCategory, setSelectedCategory] = useState('All Products');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All Products');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchActiveProducts()
+      .then((ps) => {
+        if (!cancelled) setProducts(ps);
+      })
+      .catch((e) => !cancelled && setError(e instanceof Error ? e.message : 'Failed to load products'))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const categoryNames = useMemo(
+    () => [
+      'All Products',
+      ...Array.from(
+        new Set(products.map((p) => p.categories?.name).filter(Boolean) as string[])
+      ).sort(),
+    ],
+    [products]
+  );
 
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
-      selectedCategory === 'All Products' || product.category === selectedCategory;
+      selectedCategory === 'All Products' || product.categories?.name === selectedCategory;
     const matchesSearch =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -43,7 +71,7 @@ export function ProductsPage() {
 
         {/* Categories */}
         <div className="flex flex-wrap justify-center gap-2">
-          {categories.map((category) => (
+          {categoryNames.map((category) => (
             <Button
               key={category}
               variant={selectedCategory === category ? 'default' : 'outline'}
@@ -56,42 +84,43 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {/* Products Grid */}
-      {filteredProducts.length > 0 ? (
+      {/* Loading state */}
+      {loading && (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <CardContent className="p-6">
-                <p className="text-sm text-primary mb-2">{product.category}</p>
-                <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                  {product.description}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold text-primary">
-                    ${product.price}
-                  </span>
-                  <Link to={`/products/${product.id}`}>
-                    <Button>View Details</Button>
-                  </Link>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-0">
+                <Skeleton className="aspect-square w-full" />
+                <div className="p-6 space-y-3">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-6 w-2/3" />
+                  <Skeleton className="h-4 w-full" />
                 </div>
-                {product.inStock ? (
-                  <p className="text-sm text-green-600 mt-2">In Stock</p>
-                ) : (
-                  <p className="text-sm text-destructive mt-2">Out of Stock</p>
-                )}
               </CardContent>
             </Card>
           ))}
         </div>
-      ) : (
+      )}
+
+      {error && !loading && (
+        <div className="text-center py-12">
+          <p className="text-lg text-destructive mb-4">{error}</p>
+          <p className="text-sm text-muted-foreground">
+            Make sure the seed SQL has been run in Supabase and that `.env.local` contains valid keys.
+          </p>
+        </div>
+      )}
+
+      {/* Products Grid */}
+      {!loading && !error && filteredProducts.length > 0 && (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+
+      {!loading && !error && filteredProducts.length === 0 && (
         <div className="text-center py-12">
           <p className="text-lg text-muted-foreground">No products found matching your criteria.</p>
           <Button

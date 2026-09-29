@@ -1,11 +1,26 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Leaf, Heart, Sparkles, Shield } from 'lucide-react';
-import { products } from '../data/products';
+import { ProductCard } from '../components/ProductCard';
+import { fetchActiveProducts } from '../services/products';
+import type { Product } from '../lib/supabase';
 
 export function HomePage() {
-  const featuredProducts = products.slice(0, 3);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchActiveProducts()
+      .then((ps) => {
+        if (!cancelled) setFeaturedProducts(ps.slice(0, 3));
+      })
+      .catch((e) => console.error('Failed to load featured products', e));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen">
